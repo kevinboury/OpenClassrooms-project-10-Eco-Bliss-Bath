@@ -1,11 +1,12 @@
-mysql/*
+/mysql/*
 
-node_modules
+/node_modules
 
 # Cypress
-cypress.env.json
-
-cypress/e2e/1-getting-started
-cypress/e2e/2-advanced-examples
-cypress/fixtures
-cypress/support
+/cypress.env.json
+/cypress/fixtures
+/cypress/screenshots
+/cypress/videos/
+/cypress/results/
+/cypress/downloads/
+/cypress/support
