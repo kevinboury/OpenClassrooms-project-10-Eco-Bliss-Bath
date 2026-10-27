@@ -11,25 +11,6 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it("API-002a - Se connecte avec des identifiants valides", () => {
-        // cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
-        //     cy.request(
-        //         {
-        //             method: 'POST',
-        //             url: 'http://localhost:8081/login',
-        //             body: {
-        //                 username: testEmail,
-        //                 password:
-        //                 testPassword
-        //             }
-        //         }
-        //     ).then((response) => {
-        //         expect(response.status).to.eq(200);
-
-        //         const token = response.body.token;
-        //         expect(token).to.be.a('string');
-        //     });
-        // });
-
         cy.loginApi();
     });
 
