@@ -2,6 +2,7 @@
 describe('Smoke tests - EcoBlissBath', () => {
 
     const id_produit_a_tester = 5;
+    const do_screenshots = false;
 
     it("SMK-001 - Accueil - Affiche la page d'accueil", () => {
 
@@ -9,7 +10,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('body').should('be.visible');
         cy.get('h1').should('be.visible');
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-001-Accueil-${Date.now()}`);
     });
     it("SMK-002 - Accueil - Affiche le header avec les boutons Accueil, Produits, Avis, Connexion, Inscription", () => {
 
@@ -21,7 +22,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.contains('Connexion').should('be.visible');
         cy.contains('Inscription').should('be.visible');
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-002-Accueil-${Date.now()}`);
     });
 
 
@@ -31,7 +32,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('.list-products').should('be.visible');
         cy.get('[data-cy="product"]').should('be.visible');
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-003-Produits-${Date.now()}`);
     });
     it("SMK-004 - Produits - Affiche le bouton Consulter pour chaque produit de la liste", () => {
 
@@ -40,7 +41,7 @@ describe('Smoke tests - EcoBlissBath', () => {
             cy.contains('button', 'Consulter').should('be.visible');
         })
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-004-Produits-${Date.now()}`);
     });
 
     it("SMK-005 - Fiche produit - Affiche les informations du produit (titre, image, prix, description et quantité disponible", () => {
@@ -53,7 +54,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('[data-cy="detail-product-price"]').should('be.visible');
         cy.get('[data-cy="detail-product-stock"]').should('be.visible');        
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-005-Fiche_produit-${Date.now()}`);
     });
 
     it("SMK-006 - Fiche produit - Affiche l’input de sélection de quantité et le bouton Ajouter au panier", () => {
@@ -62,7 +63,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('[data-cy="detail-product-quantity"]').should('be.visible');
         cy.get('[data-cy="detail-product-add"]').should('be.visible');
         
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-006-Fiche_produit-${Date.now()}`);
     });
 
     it("SMK-007 - Avis - Affiche la page Avis et au moins un avis", () => {
@@ -71,7 +72,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('.review-section').should('be.visible');
         cy.get('[data-cy="review-detail"]').should('be.visible');
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-007-Avis-${Date.now()}`);
     });
 
     it("SMK-008 - Connexion - Affiche le formulaire de connexion et tous ses champs", () => {
@@ -82,14 +83,10 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('[data-cy="login-input-password"]').should('be.visible');  
         cy.get('[data-cy="login-submit"]').should('be.visible');  
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-008-Connexion-${Date.now()}`);
     });
 
-    it("SMK-009 - ", () => {
-
-    });
-
-    it("SMK-010 - Inscription - Affiche le formulaire d'inscription et tous ses champs", () => {
+    it("SMK-009 - Inscription - Affiche le formulaire d'inscription et tous ses champs", () => {
 
         cy.visit('/#/register');
         cy.get('[data-cy="register-input-lastname"]').should('be.visible');
@@ -99,19 +96,15 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.get('[data-cy="register-input-password-confirm"]').should('be.visible');
         cy.get('[data-cy="register-submit"]').should('be.visible');
 
-        // cy.screenshot('SMK-001-accueil');
+        do_screenshots && cy.screenshot(`SMK-010-Inscription-${Date.now()}`);
     });
 
-    it("SMK-011 - ", () => {
-
-    });
-
-    it("SMK-012 - Accueil (connecté) - Affiche les boutons Mon panier, Déconnexion", () => {
+    it("SMK-010 - Accueil (connecté) - Affiche les boutons Mon panier, Déconnexion", () => {
 
         cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
             cy.visit('/#/login');
             cy.get('[data-cy="login-input-username"]').type(testEmail)  
-            cy.get('[data-cy="login-input-password"]').type(testPassword)  
+            cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
             
             // ici on attend explicitement la réponse HTTP avant de continuer
             cy.intercept('POST', '**/login').as('login');
@@ -124,17 +117,17 @@ describe('Smoke tests - EcoBlissBath', () => {
             cy.contains('Mon panier').should('be.visible');
             cy.contains('Déconnexion').should('be.visible');
 
-            // cy.screenshot('SMK-001-accueil');
+            do_screenshots && cy.screenshot(`SMK-012-Accueil_connecte-${Date.now()}`);
         });
     });
 
-    it("SMK-013 - Avis (connecté) - Affiche le formulaire d'avis et tous ses champs", () => {
+    it("SMK-011 - Avis (connecté) - Affiche le formulaire d'avis et tous ses champs", () => {
 
         cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
             cy.visit('/#/login');
 
             cy.get('[data-cy="login-input-username"]').type(testEmail)  
-            cy.get('[data-cy="login-input-password"]').type(testPassword)  
+            cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
 
             // ici on attend explicitement la réponse HTTP avant de continuer
             cy.intercept('POST', '**/login').as('login');
@@ -152,17 +145,17 @@ describe('Smoke tests - EcoBlissBath', () => {
             cy.get('[data-cy="review-input-comment"]').should('be.visible');
             cy.get('[data-cy="review-submit"]').should('be.visible');
 
-            // cy.screenshot('SMK-001-accueil');
+            do_screenshots && cy.screenshot(`SMK-013-Avis_connecte-${Date.now()}`);
         });
     });
 
-    it("SMK-014 - Panier vide (connecté) - Indique que le panier est vide", () => {
+    it("SMK-012 - Panier vide (connecté) - Indique que le panier est vide", () => {
 
         cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
             cy.visit('/#/login');
 
             cy.get('[data-cy="login-input-username"]').type(testEmail)  
-            cy.get('[data-cy="login-input-password"]').type(testPassword)  
+            cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
 
             // ici on attend explicitement la réponse HTTP avant de continuer
             cy.intercept('POST', '**/login').as('login');
@@ -174,17 +167,18 @@ describe('Smoke tests - EcoBlissBath', () => {
             cy.visit('/#/cart');
             // cy.get('[data-cy="nav-link-cart"]').click()
             cy.get('[data-cy="cart-empty"]').should('be.visible');
+            
+            do_screenshots && cy.screenshot(`SMK-014-Panier_vide_connecte-${Date.now()}`);
         })
 
-        // cy.screenshot('SMK-001-accueil');
     });
-    it("SMK-015 - Panier non vide (connecté) - Affiche le panier avec au moins un produit et le formulaire de commande", () => {
+    it("SMK-013 - Panier non vide (connecté) - Affiche le panier avec au moins un produit et le formulaire de commande", () => {
 
         cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
             cy.visit('/#/login');
 
             cy.get('[data-cy="login-input-username"]').type(testEmail)  
-            cy.get('[data-cy="login-input-password"]').type(testPassword)  
+            cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
 
             // ici on attend explicitement la réponse HTTP avant de continuer
             cy.intercept('POST', '**/login').as('login');
@@ -218,6 +212,7 @@ describe('Smoke tests - EcoBlissBath', () => {
             cy.get('[data-cy="cart-input-city"]').should('be.visible');
             cy.get('[data-cy="cart-submit"]').should('be.visible');
         
+            do_screenshots && cy.screenshot(`SMK-015-Panier_non_vide_connecte-${Date.now()}`);
         })
     });
 });

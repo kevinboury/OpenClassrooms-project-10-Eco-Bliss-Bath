@@ -5,7 +5,12 @@ describe('Tests API - EcoBlissBath', () => {
     const id_produit_en_rupture = 3;
 
     it("API-001 - Teste si l'API est en ligne", () => {
-        cy.request('GET', 'http://localhost:8081/api/health').then((response) => {
+        cy.request(
+            {
+                method: 'GET',
+                url: 'http://localhost:8081/api/health'
+            }
+        ).then((response) => {
             expect(response.status).to.eq(200);
         });
     });
@@ -55,34 +60,7 @@ describe('Tests API - EcoBlissBath', () => {
         });
     });
     
-    it("API-004 - Obtient des informations sur le compte utilisateur", () => {
-        // cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
-        //     cy.request(
-        //         {
-        //             method: 'POST',
-        //             url: 'http://localhost:8081/login',
-        //             body: {
-        //                 username:testEmail, password:testPassword
-        //             }
-        //         }
-        //     ).then((response) => {
-        //         expect(response.status).to.eq(200);
-
-        //         const token = response.body.token;
-        //         expect(token).to.be.a('string');
-                
-        //         cy.request(
-        //             {
-        //                 method: 'GET',
-        //                 url: 'http://localhost:8081/me',
-        //                 auth: { bearer: token }
-        //             }
-        //         ).then((response) => {
-        //             expect(response.status).to.eq(200);
-        //         });
-        //     });
-        // });
-        
+    it("API-004 - Obtient des informations sur le compte utilisateur", () => {        
         cy.loginApi().then( (token) => {
             cy.request(
                 {
@@ -96,68 +74,33 @@ describe('Tests API - EcoBlissBath', () => {
         });
     });
 
-    it('API-010 - Récupère le catalogue des produits', () => {
-
+    it('API-005 - Récupère le catalogue des produits', () => {
         cy.request('GET', 'http://localhost:8081/products').then((response) => {
 
-            // Vérifier le code HTTP
+            // Vérifie le code HTTP
             expect(response.status).to.eq(200);
 
-            // Vérifier que la réponse est un tableau
+            // Vérifie que la réponse est un tableau
             expect(response.body).to.be.an('array');
 
-            // Vérifier que le tableau n'est pas vide
+            // Vérifie que le tableau n'est pas vide
             expect(response.body.length).to.be.greaterThan(0);
-
         });
-
     });
 
-    it('API-011 - Récupère 3 produits aléatoires', () => {
-
+    it('API-006 - Récupère 3 produits aléatoires', () => {
         cy.request('GET', 'http://localhost:8081/products/random').then((response) => {
 
-            // // Vérifier le code HTTP
-            // expect(response.status).to.eq(200);
-
-            // // Vérifier que la réponse est un tableau
-            // expect(response.body).to.be.an('array');
-
-            // // Vérifier que le tableau n'est pas vide
-            // expect(response.body.length).to.be.greaterThan(0);
-
+            expect(response.status).to.eq(200);
+            expect(response.body).to.be.an('array');
+            expect(response.body.length).to.be.eq(3); 
         });
-
     });
     
-    it('API-012a - Récupère les informations d’un produit spécifique', () => {
+    it('API-007a - Récupère les informations d’un produit spécifique', () => {
         cy.request({
             method: 'GET',
-            url: 'http://localhost:8081/products/3'
-        }).then((response) => {
-            expect(response.status).to.eq(200);
-
-            // Affiche le stock de ce produit
-            cy.log(JSON.stringify(response.body.availableStock))
-        })
-    })
-
-    //Par défaut, cy.request() considère un code HTTP 4xx ou 5xx comme un échec de commande. L'option failOnStatusCode: false permet de vérifier volontairement ces réponses
-    it('API-012b - Tente de récupérer les informations d’un produit inexistant', () => {
-        cy.request({
-            method: 'GET',
-            url: 'http://localhost:8081/products/999999',
-            failOnStatusCode: false
-        }).then((response) => {
-            expect(response.status).to.eq(404);
-        })
-    })
-
-    
-    it("API-005a - Ajoute un produit disponible en stock au panier", () => {
-        cy.request({
-            method: 'GET',
-            url: 'http://localhost:8081/products/3'
+            url: `http://localhost:8081/products/${id_produit_dispo}`
         }).then((response) => {
             expect(response.status).to.eq(200);
 
@@ -165,7 +108,20 @@ describe('Tests API - EcoBlissBath', () => {
             const stock = parseInt(JSON.stringify(response.body.availableStock));
             cy.log(`stock produit n°${id_produit_dispo} : ${stock})`);
         })
+    })
 
+    it('API-007b - Tente de récupérer les informations d’un produit inexistant', () => {
+        cy.request({
+            method: 'GET',
+            url: 'http://localhost:8081/products/999999',
+            failOnStatusCode: false // Par défaut, cy.request() considère un code HTTP 4xx ou 5xx comme un échec de commande. L'option failOnStatusCode: false permet de vérifier volontairement ces réponses
+        }).then((response) => {
+            expect(response.status).to.eq(404);
+        })
+    })
+
+    
+    it("API-008a - Ajoute un produit disponible en stock au panier", () => {
         cy.loginApi().then( (token) => {
             cy.request(
                 {
@@ -183,19 +139,7 @@ describe('Tests API - EcoBlissBath', () => {
         });
     });
 
-    it("API-005b - Ajoute un produit en rupture de stock au panier", () => {
-        cy.request({
-            method: 'GET',
-            url: 'http://localhost:8081/products/3'
-        }).then((response) => {
-            expect(response.status).to.eq(200);
-
-            // Affiche le stock de ce produit
-            const stock = parseInt(JSON.stringify(response.body.availableStock));
-            cy.log(`stock produit n°${id_produit_en_rupture} : ${stock})`);
-        })
-
-        
+    it("API-008b - Ajoute un produit en rupture de stock au panier", () => {
         cy.loginApi().then( (token) => {
             cy.request(
                 {
@@ -213,7 +157,7 @@ describe('Tests API - EcoBlissBath', () => {
         });
     });
 
-    it("API-008a - Liste les produits du panier dans le cas d'un utilisateur connecté", () => {
+    it("API-009a - Liste les produits du panier dans le cas d'un utilisateur connecté", () => {
         cy.loginApi().then( (token) => {
             //ajout du produit
             cy.request(
@@ -238,13 +182,13 @@ describe('Tests API - EcoBlissBath', () => {
                 ).then((response) => {
                     expect(response.status).to.eq(200);
 
-                    cy.log(JSON.stringify(response.body.orderLines, null, 2))
+                    cy.log(JSON.stringify(response.body.orderLines, null, 2)) // replacer : fonction qui modifie les valeurs
                 })
             })
         })
     });
 
-    it("API-008b - Liste les produits du panier dans le cas d'un utilisateur non connecté", () => {
+    it("API-009b - Liste les produits du panier dans le cas d'un utilisateur non connecté", () => {
         cy.request(
             {
                 method: 'GET',
@@ -256,7 +200,7 @@ describe('Tests API - EcoBlissBath', () => {
         })
     });
     
-    it("API-006a - Change la quantité du produit (disponible) dans le panier", () => {
+    it("API-010a - Change la quantité de produits d’une ligne présente dans le panier", () => {
         cy.loginApi().then( (token) => {
             //ajout du produit
             cy.request(
@@ -292,7 +236,7 @@ describe('Tests API - EcoBlissBath', () => {
         })
     });
 
-    it("API-006b - Essaie de changer la quantité d’un produit absent du panier", () => {
+    it("API-010b - Essaie de changer la quantité de produits d’une ligne absente du panier", () => {
         cy.loginApi().then( (token) => {
             cy.request(
                 {
@@ -309,7 +253,7 @@ describe('Tests API - EcoBlissBath', () => {
         })
     });
     
-    it("API-007 - Supprime un produit du panier", () => {
+    it("API-011 - Supprime un produit du panier", () => {
         cy.loginApi().then( (token) => {
             //ajout du produit
             cy.request(
@@ -342,23 +286,100 @@ describe('Tests API - EcoBlissBath', () => {
         })
     });
 
+    it("API-012a - Valide la commande pour le panier en cours, dans le cas où tous les produits sont disponibles", () => {
+        cy.loginApi().then( (token) => {
+            
+            //ajout du produit
+            cy.request(
+                {
+                    method: 'PUT',
+                    url: 'http://localhost:8081/orders/add',
+                    auth: { bearer: token },
+                    body: {
+                        product: id_produit_dispo,
+                        quantity: 2
+                    }
+                }
+            ).then((response) => {
+                expect(response.status).to.eq(200);
 
-    
-    it("API-009a - Valide la commande pour le panier en cours, dans le cas où tous les produits sont disponibles", () => {
-        //produit
+                cy.request(
+                    {
+                        method: 'POST',
+                        url: 'http://localhost:8081/orders',
+                        auth: { bearer: token },
+                        body: {
+                            "firstname": "Prénom",
+                            "lastname": "Nom",
+                            "address": "Adresse",
+                            "zipCode": "33333",
+                            "city": "Ville"
+                        }
+                    }
+                ).then((response) => {
+                    expect(response.status).to.eq(200);
+                })
+            })
+        })
+    });
 
+    it("API-012b - Valide la commande pour le panier en cours, dans le cas où un produit n’est pas disponible", () => {
+        cy.loginApi().then( (token) => {
+            
+            //ajout du produit
+            cy.request(
+                {
+                    method: 'PUT',
+                    url: 'http://localhost:8081/orders/add',
+                    auth: { bearer: token },
+                    body: {
+                        product: id_produit_en_rupture,
+                        quantity: 2
+                    }
+                }
+            ).then((response) => {
+                expect(response.status).to.eq(200);
+
+                cy.request(
+                    {
+                        method: 'POST',
+                        url: 'http://localhost:8081/orders',
+                        auth: { bearer: token },
+                        body: {
+                            "firstname": "Prénom",
+                            "lastname": "Nom",
+                            "address": "Adresse",
+                            "zipCode": "33333",
+                            "city": "Ville"
+                        }
+                    }
+                ).then((response) => {
+                    expect(response.status).to.eq(400); // code à définir
+                })
+            })
+        })
+    });
+
+    it('API-013 - Récupère les avis postés sur le site', () => {
+        cy.request({
+            method: 'GET',
+            url: 'http://localhost:8081/reviews'
+        }).then((response) => {
+            expect(response.status).to.eq(200);
+        })
+    })
+
+    it('API-014 - Crée un nouvel avis', () => {
         cy.loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'POST',
-                    url: 'http://localhost:8081/orders',
+                    url: 'http://localhost:8081/reviews',
                     auth: { bearer: token },
                     body: {
-                        "firstname": "Prénom",
-                        "lastname": "Nom",
-                        "address": "Adresse",
-                        "zipCode": "33333",
-                        "city": "Ville"
+                        title: `Cypress-API-${Date.now()}`,
+                        comment: "Commentaire test",
+                        rating: 5
                     }
                 }
             ).then((response) => {
@@ -366,52 +387,6 @@ describe('Tests API - EcoBlissBath', () => {
             })
         })
     });
-
-    it("API-009b - Valide la commande pour le panier en cours, dans le cas où un produit n’est pas disponible", () => {
-        // produit
-        
-        cy.loginApi().then( (token) => {
-            cy.request(
-                {
-                    method: 'POST',
-                    url: 'http://localhost:8081/orders',
-                    auth: { bearer: token },
-                    body: {
-                        "firstname": "Prénom",
-                        "lastname": "Nom",
-                        "address": "Adresse",
-                        "zipCode": "33333",
-                        "city": "Ville"
-                    },
-                    failOnStatusCode: false
-                }
-            ).then((response) => {
-                expect(response.status).to.eq(404); // code à définir
-            })
-        })
-    });
-
-
-    it('API-013 - Récupère les avis postés sur le site', () => {
-        // cy.request({
-        //     method: 'GET',
-        //     url: 'http://localhost:8081/api/products/999999',
-        //     failOnStatusCode: false
-        // }).then((response) => {
-        //     expect(response.status).to.eq(404);
-        // })
-    })
-
-    it('API-014 - Crée un nouvel avis', () => {
-        // cy.request({
-        //     method: 'GET',
-        //     url: 'http://localhost:8081/api/products/999999',
-        //     failOnStatusCode: false
-        // }).then((response) => {
-        //     expect(response.status).to.eq(404);
-        // })
-    })
-
 });
 
 
