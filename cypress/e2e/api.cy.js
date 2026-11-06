@@ -1,4 +1,6 @@
 
+import { loginApi } from '../support/tools'
+
 describe('Tests API - EcoBlissBath', () => {
 
     const id_produit_dispo = 5;
@@ -16,7 +18,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it("API-002a - Se connecte avec des identifiants valides", () => {
-        cy.loginApi();
+        loginApi();
     });
 
     it("API-002b - Se connecte avec des identifiants incorrects", () => {
@@ -61,7 +63,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
     
     it("API-004 - Obtient des informations sur le compte utilisateur", () => {        
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'GET',
@@ -122,7 +124,7 @@ describe('Tests API - EcoBlissBath', () => {
 
     
     it("API-008a - Ajoute un produit disponible en stock au panier", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'PUT',
@@ -139,8 +141,8 @@ describe('Tests API - EcoBlissBath', () => {
         });
     });
 
-    it("API-008b - Ajoute un produit en rupture de stock au panier", () => {
-        cy.loginApi().then( (token) => {
+    it("API-008b - Refuse d'ajouter un produit en rupture de stock au panier", () => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'PUT',
@@ -158,7 +160,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it("API-009a - Liste les produits du panier dans le cas d'un utilisateur connecté", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             //ajout du produit
             cy.request(
                 {
@@ -201,7 +203,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
     
     it("API-010a - Change la quantité de produits d’une ligne présente dans le panier", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             //ajout du produit
             cy.request(
                 {
@@ -237,7 +239,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it("API-010b - Essaie de changer la quantité de produits d’une ligne absente du panier", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'PUT',
@@ -254,7 +256,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
     
     it("API-011 - Supprime un produit du panier", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             //ajout du produit
             cy.request(
                 {
@@ -287,7 +289,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it("API-012a - Valide la commande pour le panier en cours, dans le cas où tous les produits sont disponibles", () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             
             //ajout du produit
             cy.request(
@@ -323,8 +325,8 @@ describe('Tests API - EcoBlissBath', () => {
         })
     });
 
-    it("API-012b - Valide la commande pour le panier en cours, dans le cas où un produit n’est pas disponible", () => {
-        cy.loginApi().then( (token) => {
+    it("API-012b - Refuse de valider la commande pour le panier en cours, dans le cas où un produit n’est pas disponible", () => {
+        loginApi().then( (token) => {
             
             //ajout du produit
             cy.request(
@@ -370,7 +372,7 @@ describe('Tests API - EcoBlissBath', () => {
     })
 
     it('API-014 - Crée un nouvel avis', () => {
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'POST',

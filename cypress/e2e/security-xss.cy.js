@@ -1,22 +1,26 @@
+import { loginApi, loginUI, selector } from '../support/tools'
 
 describe('Test XSS - EcoBlissBath', () => {
     
     const do_screenshots = false;
 
     beforeEach(() => {
-        cy.session('utilisateur-test', () => {
-            cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
-                cy.visit('/#/login');
-                cy.get('[data-cy="login-input-username"]').type(testEmail)  
-                cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
+        // cy.session('utilisateur-test', () => {
+        //     cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
+        //         cy.visit('/#/login');
+        //         cy.get('[data-cy="login-input-username"]').type(testEmail)  
+        //         cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
                 
-                // ici on attend explicitement la réponse HTTP avant de continuer
-                cy.intercept('POST', '**/login').as('login');
-                cy.get('[data-cy="login-submit"]').click();
-                cy.wait('@login').then(({ response }) => {
-                    expect(response.statusCode).to.eq(200);
-                });
-            });
+        //         // ici on attend explicitement la réponse HTTP avant de continuer
+        //         cy.intercept('POST', '**/login').as('login');
+        //         cy.get('[data-cy="login-submit"]').click();
+        //         cy.wait('@login').then(({ response }) => {
+        //             expect(response.statusCode).to.eq(200);
+        //         });
+        //     });
+        // });
+        cy.session('utilisateur-test', () => {
+            loginUI()
         });
     });
 
@@ -32,32 +36,32 @@ describe('Test XSS - EcoBlissBath', () => {
         });
 
         // L'option parseSpecialCharSequences: false permet de saisir littéralement le texte contenant des caractères spéciaux, sans que Cypress les interprète comme des séquences de touches.
-        cy.get('[data-cy="review-input-title"]').type(injection_title, { parseSpecialCharSequences: false });
-        cy.get('[data-cy="review-input-comment"]').type(injection_comment, { parseSpecialCharSequences: false });
+        cy.get(selector.reviewInput.title).type(injection_title, { parseSpecialCharSequences: false });
+        cy.get(selector.reviewInput.comment).type(injection_comment, { parseSpecialCharSequences: false });
 
         // Sélectionne la 3ème étoile pour l'avis
-        cy.get('[data-cy="review-input-rating-images"] img').eq(2).click();
-        cy.get('[data-cy="review-input-rating"]').should('have.value', '3');
+        cy.get(selector.reviewInput.ratingImages + ' img').eq(2).click();
+        cy.get(selector.reviewInput.rating).should('have.value', '3');
 
-        cy.get('[data-cy="review-submit"]').click();
+        cy.get(selector.reviewInput.submit).click();
 
 
 
         // cy.get('[data-cy="review-title"]').contains(injection_title);
-        cy.contains('[data-cy="review-title"]', "test - "+injection_title)
-            .closest('[data-cy="review-detail"]')
-            .find('[data-cy="review-comment"]')
+        cy.contains(selector.review.title, "test - "+injection_title)
+            .closest(selector.review.detail)
+            .find(selector.review.comment)
             .should("be.empty");
-        // cy.get('[data-cy="review-comment"]').should("be.empty"); // le champ commentaire est vide
-        // cy.get('[data-cy="review-comment"]').should('contain.text', injection_comment); // l'injection est affichée "assainie"
+        // cy.get(selector.review.comment).should("be.empty"); // le champ commentaire est vide
+        // cy.get(selector.review.comment).should('contain.text', injection_comment); // l'injection est affichée "assainie"
         
         do_screenshots && cy.screenshot(`XSS-001-Avis-${Date.now()}`);
     });
     
-    it('XSS-002a - neutralise une injection XSS dans la requête API d\'ajout au panier', () => {
+    it('XSS-002a - neutralise une injection XSS dans la requête API d\'ajout au panier - product ID', () => {
         const injection = '<img src=x onerror=alert("XSS Attack!")>';
 
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'PUT',
@@ -78,10 +82,10 @@ describe('Test XSS - EcoBlissBath', () => {
         
     });
 
-    it('XSS-002b - neutralise une injection XSS dans la requête API d\'ajout au panier', () => {
+    it('XSS-002b - neutralise une injection XSS dans la requête API d\'ajout au panier - product quantity', () => {
         const injection = '<img src=x onerror=alert("XSS Attack!")>';
 
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             cy.request(
                 {
                     method: 'PUT',
@@ -106,7 +110,7 @@ describe('Test XSS - EcoBlissBath', () => {
         const injection_img = '<img src=x onerror=alert("XSS Attack!")>';
         const injection_script = "<script>alert('XSS Attack!');</script>";
 
-        cy.loginApi().then( (token) => {
+        loginApi().then( (token) => {
             //ajout du produit
             cy.request(
                 {

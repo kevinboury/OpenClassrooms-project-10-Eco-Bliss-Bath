@@ -1,0 +1,259 @@
+import { 
+    API_URL,
+    selector, 
+    eurosToCents,
+    openLogin, 
+    openRegister, 
+    openCart,
+    assertVisibleError, 
+    fillRegistration, 
+    fillLogin, 
+    fillCheckout,
+    loginApi, 
+    loginUI, 
+    trySubmit, 
+    addProductFromUI } from '../support/tools';
+
+const PRODUCT_A = 5; // TODO : choisir deux produits distincts connus
+const PRODUCT_B = 8;
+
+const S = {
+//   nav: {
+//     login: '[data-cy="nav-link-login"]',          // confirmé
+//     cart: '[data-cy="nav-link-cart"]',            // TODO
+//     logout: '[data-cy="nav-link-logout"]',        // TODO
+//   },
+//   login: {
+//     email: '[data-cy="login-input-username"]',   // confirmé
+//     password: '[data-cy="login-input-password"]',// confirmé
+//     submit: '[data-cy="login-submit"]',          // confirmé
+//   },
+
+//   product: {
+//     image: '[data-cy="detail-product-img"]',
+//     name: '[data-cy="detail-product-name"]',
+//     description: '[data-cy="detail-product-description"]',
+//     price: '[data-cy="detail-product-price"]',
+//     quantity: '[data-cy="detail-product-quantity"]',
+//     quantity: '[data-cy="detail-product-stock"]',
+//     add: '[data-cy="detail-product-add"]',
+//   },
+
+
+//   cart: {
+//     row: '[data-cy="cart-line"]',              // TODO : conteneur d'une ligne
+//     name: '[data-cy="cart-line-name"]',        // TODO
+//     unitPrice: '[data-cy="cart-line-price"]', // TODO
+//     quantity: '[data-cy="cart-line-quantity"]', // TODO : input quantité
+//     subtotal: '[data-cy="cart-line-subtotal"]', // TODO
+//     remove: '[data-cy="cart-line-delete"]',    // TODO
+//     total: '[data-cy="cart-total"]',           // TODO
+//   },
+//   checkout: {
+//     firstname: '[data-cy="order-firstname"]', // TODO
+//     lastname: '[data-cy="order-lastname"]',   // TODO
+//     address: '[data-cy="order-address"]',     // TODO
+//     zipCode: '[data-cy="order-zipcode"]',     // TODO
+//     city: '[data-cy="order-city"]',           // TODO
+//     submit: '[data-cy="order-submit"]',       // TODO
+//     error: '[data-cy="order-error"]',         // TODO : global ou champs
+//     zipError: '[data-cy="order-zipcode-error"]', // TODO
+//     confirmation: '[data-cy="order-confirmation"]', // TODO
+//   },
+};
+
+
+
+// Préparation via API, hors parcours fonctionnel évalué.
+// Ces appels effacent uniquement le panier du compte de test authentifié.
+function clearTestCart() {
+    return loginApi().then( (token) => {
+        return cy.request(
+            {
+                method: 'GET',
+                url: `${API_URL}/orders`,
+                auth: { bearer: token },
+            }
+        ).then( ( {body} ) => {
+            const lines = body.orderLines || [];
+            return cy.wrap(lines).each((line) => {
+                // On utilise l'ID de la LIGNE du panier, pas celui du produit.
+                return cy.request(
+                    {
+                        method: 'DELETE',
+                        url: `${API_URL}/orders/${line.id}/delete`,
+                        auth: { bearer: token },
+                    }
+                );
+            }).then(() => {
+                return cy.request(
+                    {
+                        method: 'GET',
+                        url: `${API_URL}/orders`,
+                        auth: { bearer: token },
+                    }
+                ).its('body.orderLines').should('have.length', 0);
+            });
+        });
+    });
+}
+
+// Prépare une commande non vide pour CART-002/003/004, sans refaire le parcours UI.
+function seedCart() {
+    return loginApi().then((token) => {
+        return cy.request(
+            {
+                method: 'PUT',
+                url: `${API_URL}/orders/add`,
+                auth: { bearer: token },
+                body: { 
+                    product: PRODUCT_A, 
+                    quantity: 1 
+                },
+            }
+        ).its('status').should('eq', 200);
+    });
+}
+
+
+// Renvoie une chaîne Cypress représentant la ligne du produit demandé.
+function lineFor(name) {
+    return cy.contains(selector.cart.name, name).closest(selector.cart.line);
+}
+
+function assertMoney(selector, expectedCents) {
+    cy.get(selector).invoke('text').then((text) => {
+        expect(eurosToCents(text), `Montant affiché par ${selector}`).to.eq(expectedCents);
+    });
+}
+
+function assertLine(product, quantity) {
+    lineFor(product.name).within(() => {
+        cy.get(selector.cart.name).should('have.text', product.name);
+        cy.get(selector.cart.quantity).should('have.value', String(quantity));
+        assertMoney(selector.cart.lineTotal, product.priceCents * quantity);
+    });
+}
+
+function assertTotal(expectedCents) {
+    assertMoney(selector.cart.total, expectedCents);
+}
+
+
+
+
+
+function prepareCheckout() {
+    seedCart();
+    openCart();
+    cy.get(selector.cartInput.submit).should('be.visible');
+}
+
+describe('Scénario 2 — Panier', () => {
+    beforeEach(() => {
+        loginUI(); // E2E : connexion dans le navigateur
+        clearTestCart(); // API : panier vide et état connu
+    });
+
+    it('CART-001 — Constitue puis modifie un panier avec deux produits', () => {
+        // On récupère les données produit APRÈS leur lecture par Cypress.
+        // Éviter les variables utilisées hors de .then() : les commandes sont asynchrones.
+
+
+        addProductFromUI(PRODUCT_A, 2).then((productA) => {
+            openCart();
+            assertLine(productA, 2);
+            assertTotal(productA.priceCents * 2);
+
+            addProductFromUI(PRODUCT_B, 1).then((productB) => {
+                openCart();
+                assertLine(productA, 2);
+                assertLine(productB, 1);
+                assertTotal(productA.priceCents * 2 + productB.priceCents);
+
+                // Modification de la quantité du produit A (2 -> 3).
+                cy.intercept('PUT', '**/orders/*/change-quantity').as('quantityChanged');
+                lineFor(productA.name).find(selector.cart.quantity).type('{selectall}3').blur(); // clear() ne fonctionne pas
+                cy.wait('@quantityChanged').then(({ response }) => {
+                    expect(response.statusCode).to.eq(200);
+                });
+
+                assertLine(productA, 3);
+                assertLine(productB, 1);
+                assertTotal(productA.priceCents * 3 + productB.priceCents);
+
+                // Suppression du produit A : le produit B doit rester.
+                cy.intercept('DELETE', '**/orders/*/delete').as('lineDeleted');
+                lineFor(productA.name).find(selector.cart.delete).click();
+                cy.wait('@lineDeleted').then(({ response }) => {
+                    expect(response.statusCode).to.eq(200);
+                });
+
+                cy.contains(selector.cart.name, productA.name).should('not.exist');
+                assertLine(productB, 1);
+                assertTotal(productB.priceCents);
+            });
+        });
+    });
+
+    it('CART-002 — Refuse la validation (champs vides)', () => {
+        prepareCheckout();
+        trySubmit(selector.cartInput.submit);
+
+        // il n'y a pas de message d'errer pour le panier
+        // les labels deviennent simplement rouges (ils prennent la class .error)
+
+        // Vérification du signalement de l'erreur
+        cy.get('label[for="zipCode"]').should('have.class', 'error');
+
+        // Vérifier l'absence de redirection
+        cy.location('hash').should('not.eq', '#/confirmation');
+    });
+
+    it('CART-003 — Refuse la validation (données invalides)', () => {
+        prepareCheckout();
+        fillCheckout({
+            firstname: 'Prénom',
+            lastname: 'Nom',
+            address: 'adresse test',
+            zipCode: 'abc',
+            city: 'Ville',
+        });
+        // tryCheckout();
+        trySubmit(selector.cartInput.submit);
+
+        // il n'y a pas de message d'errer pour le panier
+        // les labels deviennent simplement rouges (ils prennent la class .error)
+
+        // Vérification du signalement de l'erreur
+        cy.get('label[for="zipCode"]').should('have.class', 'error');
+
+        // Vérifier l'absence de redirection
+        cy.location('hash').should('not.eq', '#/confirmation');
+    });
+
+    it('CART-004 — Accepte la validation (données valides)', () => {
+        prepareCheckout();
+        fillCheckout({
+            firstname: 'Prénom',
+            lastname: 'Nom',
+            address: 'adresse test',
+            zipCode: '33333',
+            city: 'Ville',
+        });
+
+        cy.intercept('POST', '**/orders').as('orderValidated');
+        cy.get(selector.cartInput.submit).click();
+        
+        // Acceptation du backend
+        cy.wait('@orderValidated').then(({ response }) => {
+            expect(response.statusCode).to.eq(200);
+        });
+
+        // Vérification de la redirection
+        cy.location('hash').should('eq', '#/confirmation');
+
+        // Vérification du message de confirmation
+        cy.get('#confirmation .subtitle-confirm').should('be.visible').and('have.text', 'Votre commande est bien validée');
+    });
+});
