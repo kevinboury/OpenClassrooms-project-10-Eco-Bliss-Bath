@@ -14,6 +14,7 @@ L'environnement de test utilise les adresses suivantes :
 
 
 Frontend Angular : http://localhost:4200 
+
 Backend API : http://localhost:8081 
 
 Ces adresses sont configurées dans `cypress.config.js`.

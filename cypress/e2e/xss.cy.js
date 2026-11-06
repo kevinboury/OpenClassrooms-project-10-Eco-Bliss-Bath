@@ -5,20 +5,7 @@ describe('Test XSS - EcoBlissBath', () => {
     const do_screenshots = false;
 
     beforeEach(() => {
-        // cy.session('utilisateur-test', () => {
-        //     cy.env( ["testEmail", "testPassword"] ).then( ( {testEmail, testPassword} ) => {
-        //         cy.visit('/#/login');
-        //         cy.get('[data-cy="login-input-username"]').type(testEmail)  
-        //         cy.get('[data-cy="login-input-password"]').type(testPassword, { log: false })  
-                
-        //         // ici on attend explicitement la réponse HTTP avant de continuer
-        //         cy.intercept('POST', '**/login').as('login');
-        //         cy.get('[data-cy="login-submit"]').click();
-        //         cy.wait('@login').then(({ response }) => {
-        //             expect(response.statusCode).to.eq(200);
-        //         });
-        //     });
-        // });
+
         cy.session('utilisateur-test', () => {
             loginUI()
         });
@@ -74,8 +61,6 @@ describe('Test XSS - EcoBlissBath', () => {
                     failOnStatusCode: false
                 }
             ).then((response) => {
-                // cy.log(`Statut HTTP : ${response.status}`);
-                // cy.log(JSON.stringify(response.body));
                 expect(response.status).to.eq(400); // log cypress : {"error":{"product":["This value is not valid."]}}
             });
         })
@@ -98,8 +83,6 @@ describe('Test XSS - EcoBlissBath', () => {
                     failOnStatusCode: false
                 }
             ).then((response) => {
-                // cy.log(`Statut HTTP : ${response.status}`);
-                // cy.log(JSON.stringify(response.body));
                 expect(response.status).to.eq(400); // log cypress : {"error":{"product":["This value is not valid."]}}
             });
         })

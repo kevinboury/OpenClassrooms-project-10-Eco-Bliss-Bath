@@ -2,66 +2,15 @@ import {
     API_URL,
     selector, 
     eurosToCents,
-    openLogin, 
-    openRegister, 
     openCart,
-    assertVisibleError, 
-    fillRegistration, 
-    fillLogin, 
     fillCheckout,
     loginApi, 
     loginUI, 
     trySubmit, 
     addProductFromUI } from '../support/tools';
 
-const PRODUCT_A = 5; // TODO : choisir deux produits distincts connus
+const PRODUCT_A = 5; 
 const PRODUCT_B = 8;
-
-const S = {
-//   nav: {
-//     login: '[data-cy="nav-link-login"]',          // confirmé
-//     cart: '[data-cy="nav-link-cart"]',            // TODO
-//     logout: '[data-cy="nav-link-logout"]',        // TODO
-//   },
-//   login: {
-//     email: '[data-cy="login-input-username"]',   // confirmé
-//     password: '[data-cy="login-input-password"]',// confirmé
-//     submit: '[data-cy="login-submit"]',          // confirmé
-//   },
-
-//   product: {
-//     image: '[data-cy="detail-product-img"]',
-//     name: '[data-cy="detail-product-name"]',
-//     description: '[data-cy="detail-product-description"]',
-//     price: '[data-cy="detail-product-price"]',
-//     quantity: '[data-cy="detail-product-quantity"]',
-//     quantity: '[data-cy="detail-product-stock"]',
-//     add: '[data-cy="detail-product-add"]',
-//   },
-
-
-//   cart: {
-//     row: '[data-cy="cart-line"]',              // TODO : conteneur d'une ligne
-//     name: '[data-cy="cart-line-name"]',        // TODO
-//     unitPrice: '[data-cy="cart-line-price"]', // TODO
-//     quantity: '[data-cy="cart-line-quantity"]', // TODO : input quantité
-//     subtotal: '[data-cy="cart-line-subtotal"]', // TODO
-//     remove: '[data-cy="cart-line-delete"]',    // TODO
-//     total: '[data-cy="cart-total"]',           // TODO
-//   },
-//   checkout: {
-//     firstname: '[data-cy="order-firstname"]', // TODO
-//     lastname: '[data-cy="order-lastname"]',   // TODO
-//     address: '[data-cy="order-address"]',     // TODO
-//     zipCode: '[data-cy="order-zipcode"]',     // TODO
-//     city: '[data-cy="order-city"]',           // TODO
-//     submit: '[data-cy="order-submit"]',       // TODO
-//     error: '[data-cy="order-error"]',         // TODO : global ou champs
-//     zipError: '[data-cy="order-zipcode-error"]', // TODO
-//     confirmation: '[data-cy="order-confirmation"]', // TODO
-//   },
-};
-
 
 
 // Préparation via API, hors parcours fonctionnel évalué.

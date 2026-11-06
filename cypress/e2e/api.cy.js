@@ -3,8 +3,8 @@ import { loginApi } from '../support/tools'
 
 describe('Tests API - EcoBlissBath', () => {
 
-    const id_produit_dispo = 5;
-    const id_produit_en_rupture = 3;
+    const ID_PRODUIT_DISPO = 5;
+    const ID_PRODUIT_EN_RUPTURE = 3;
 
     it("API-001 - Teste si l'API est en ligne", () => {
         cy.request(
@@ -102,13 +102,13 @@ describe('Tests API - EcoBlissBath', () => {
     it('API-007a - Récupère les informations d’un produit spécifique', () => {
         cy.request({
             method: 'GET',
-            url: `http://localhost:8081/products/${id_produit_dispo}`
+            url: `http://localhost:8081/products/${ID_PRODUIT_DISPO}`
         }).then((response) => {
             expect(response.status).to.eq(200);
 
             // Affiche le stock de ce produit
             const stock = parseInt(JSON.stringify(response.body.availableStock));
-            cy.log(`stock produit n°${id_produit_dispo} : ${stock})`);
+            cy.log(`stock produit n°${ID_PRODUIT_DISPO} : ${stock})`);
         })
     })
 
@@ -131,7 +131,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_dispo,
+                        product: ID_PRODUIT_DISPO,
                         quantity: 2
                     }
                 }
@@ -149,7 +149,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_en_rupture,
+                        product: ID_PRODUIT_EN_RUPTURE,
                         quantity: 2
                     }
                 }
@@ -168,7 +168,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_dispo,
+                        product: ID_PRODUIT_DISPO,
                         quantity: 2
                     }
                 }
@@ -211,7 +211,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_dispo,
+                        product: ID_PRODUIT_DISPO,
                         quantity: 2
                     }
                 }
@@ -264,7 +264,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_dispo,
+                        product: ID_PRODUIT_DISPO,
                         quantity: 2
                     }
                 }
@@ -298,7 +298,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_dispo,
+                        product: ID_PRODUIT_DISPO,
                         quantity: 2
                     }
                 }
@@ -335,7 +335,7 @@ describe('Tests API - EcoBlissBath', () => {
                     url: 'http://localhost:8081/orders/add',
                     auth: { bearer: token },
                     body: {
-                        product: id_produit_en_rupture,
+                        product: ID_PRODUIT_EN_RUPTURE,
                         quantity: 2
                     }
                 }
