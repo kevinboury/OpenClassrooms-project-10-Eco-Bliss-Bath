@@ -154,7 +154,7 @@ describe('Tests API - EcoBlissBath', () => {
                     }
                 }
             ).then((response) => {
-                expect(response.status).to.eq(409); // code d'erreur à définir
+                expect(response.status).to.eq(422); // code d'erreur à définir
             });
         });
     });
@@ -356,7 +356,7 @@ describe('Tests API - EcoBlissBath', () => {
                         }
                     }
                 ).then((response) => {
-                    expect(response.status).to.eq(400); // code à définir
+                    expect(response.status).to.eq(422); // code à définir
                 })
             })
         })
