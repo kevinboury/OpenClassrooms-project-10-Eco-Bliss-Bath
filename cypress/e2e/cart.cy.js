@@ -9,8 +9,11 @@ import {
     trySubmit, 
     addProductFromUI } from '../support/tools';
 
-const PRODUCT_A = 5; 
-const PRODUCT_B = 8;
+// const PRODUCT_A = 5; 
+// const PRODUCT_B = 8;
+
+const ID_PRODUIT_A = products.productA_Dispo.id;
+const ID_PRODUIT_B = products.productB_Dispo.id;
 
 
 // Préparation via API, hors parcours fonctionnel évalué.

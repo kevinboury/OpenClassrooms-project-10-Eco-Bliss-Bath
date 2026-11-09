@@ -4,7 +4,7 @@ import {
 
 const do_screenshots = false;
 
-const ID_PRODUIT_DISPO = products.productA_Dispo.id; //5
+const ID_PRODUIT_DISPO = products.productA_Dispo.id;
 
 describe('Smoke tests - EcoBlissBath', () => {
 
@@ -155,7 +155,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         loginUI()
 
         // TODO ajout de produit
-        cy.intercept('GET', '**/products/5').as('productLoaded');
+        cy.intercept('GET', '**/products/'+ID_PRODUIT_DISPO).as('productLoaded');
         cy.intercept('PUT', '**/orders/add').as('productAdded');
 
         cy.visit('/#/products/'+ID_PRODUIT_DISPO);

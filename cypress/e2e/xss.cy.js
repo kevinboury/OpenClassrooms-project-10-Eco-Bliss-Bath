@@ -2,6 +2,8 @@ import { URL_API, loginApi, loginUI, selector } from '../support/tools'
 
 const do_screenshots = false;
 
+const ID_PRODUIT_EN_RUPTURE = products.productC_Rupture.id;
+
 describe('Test XSS - EcoBlissBath', () => {
     
 
@@ -102,7 +104,7 @@ describe('Test XSS - EcoBlissBath', () => {
                     url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
-                        product: 3,
+                        product: ID_PRODUIT_EN_RUPTURE,
                         quantity: 2
                     }
                 }
@@ -130,7 +132,5 @@ describe('Test XSS - EcoBlissBath', () => {
             })
         })
     })
-    // // Vérifier que l'injection ne crée pas d'image HTML dans le conteneur où s'affiche le contenu.
-    // cy.get('[data-cy="review-comment"]').find('img[onerror]').should('not.exist');
 
 });
