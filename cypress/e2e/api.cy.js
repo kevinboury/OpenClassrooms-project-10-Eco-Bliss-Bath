@@ -2,7 +2,6 @@
 import { URL_API, loginApi } from '../support/tools'
 
 const products = Cypress.expose('products');
-
 const ID_PRODUIT_DISPO = products.productA_Dispo.id;
 const ID_PRODUIT_EN_RUPTURE = products.productC_Rupture.id;
 

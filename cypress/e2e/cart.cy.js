@@ -12,6 +12,7 @@ import {
 // const PRODUCT_A = 5; 
 // const PRODUCT_B = 8;
 
+const products = Cypress.expose('products');
 const ID_PRODUIT_A = products.productA_Dispo.id;
 const ID_PRODUIT_B = products.productB_Dispo.id;
 

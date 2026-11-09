@@ -4,6 +4,7 @@ import {
 
 const do_screenshots = false;
 
+const products = Cypress.expose('products');
 const ID_PRODUIT_DISPO = products.productA_Dispo.id;
 
 describe('Smoke tests - EcoBlissBath', () => {
