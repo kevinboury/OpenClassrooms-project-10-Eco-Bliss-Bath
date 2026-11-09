@@ -1,5 +1,5 @@
 import { 
-    API_URL,
+    URL_API,
     selector, 
     eurosToCents,
     openCart,
@@ -20,28 +20,48 @@ function clearTestCart() {
         return cy.request(
             {
                 method: 'GET',
-                url: `${API_URL}/orders`,
+                url: `${URL_API}/orders`,
                 auth: { bearer: token },
+                failOnStatusCode: false
             }
-        ).then( ( {body} ) => {
-            const lines = body.orderLines || [];
+            ).then((response) => {
+
+            // Aucun panier existant
+            if (response.status === 404) {
+                cy.log('Aucun panier à vider');
+                return;
+            }
+
+            expect(response.status).to.eq(200);
+
+            const lines = response.body?.orderLines ?? [];
+
+            // Panier existant mais vide
+            if (lines.length === 0) {
+                cy.log('Le panier est déjà vide');
+                return;
+            }
+
+            // Suppression des lignes du panier
             return cy.wrap(lines).each((line) => {
-                // On utilise l'ID de la LIGNE du panier, pas celui du produit.
-                return cy.request(
-                    {
+                cy.request(
+                        {
                         method: 'DELETE',
-                        url: `${API_URL}/orders/${line.id}/delete`,
-                        auth: { bearer: token },
+                        url: `${URL_API}/orders/${line.id}/delete`,
+                        auth: { bearer: token }
                     }
                 );
             }).then(() => {
-                return cy.request(
+
+                // Vérification finale
+                cy.request(
                     {
                         method: 'GET',
-                        url: `${API_URL}/orders`,
-                        auth: { bearer: token },
+                        url: `${URL_API}/orders`,
+                        auth: { bearer: token }
                     }
                 ).its('body.orderLines').should('have.length', 0);
+
             });
         });
     });
@@ -53,7 +73,7 @@ function seedCart() {
         return cy.request(
             {
                 method: 'PUT',
-                url: `${API_URL}/orders/add`,
+                url: `${URL_API}/orders/add`,
                 auth: { bearer: token },
                 body: { 
                     product: PRODUCT_A, 
@@ -161,48 +181,42 @@ describe('Scénario 2 — Panier', () => {
 
     it('CART-003 — Refuse la validation (données invalides)', () => {
         prepareCheckout();
-        fillCheckout({
-            firstname: 'Prénom',
-            lastname: 'Nom',
-            address: 'adresse test',
-            zipCode: 'abc',
-            city: 'Ville',
-        });
-        // tryCheckout();
-        trySubmit(selector.cartInput.submit);
+        cy.env( ["cartInput_Invalid"] ).then( ({cartInput_Invalid}) => {
+            fillCheckout(cartInput_Invalid);
 
-        // il n'y a pas de message d'errer pour le panier
-        // les labels deviennent simplement rouges (ils prennent la class .error)
+            // tryCheckout();
+            trySubmit(selector.cartInput.submit);
 
-        // Vérification du signalement de l'erreur
-        cy.get('label[for="zipCode"]').should('have.class', 'error');
+            // il n'y a pas de message d'errer pour le panier
+            // les labels deviennent simplement rouges (ils prennent la class .error)
 
-        // Vérifier l'absence de redirection
-        cy.location('hash').should('not.eq', '#/confirmation');
+            // Vérification du signalement de l'erreur
+            cy.get('label[for="zipCode"]').should('have.class', 'error');
+
+            // Vérifier l'absence de redirection
+            cy.location('hash').should('not.eq', '#/confirmation');
+        } )
     });
 
     it('CART-004 — Accepte la validation (données valides)', () => {
-        prepareCheckout();
-        fillCheckout({
-            firstname: 'Prénom',
-            lastname: 'Nom',
-            address: 'adresse test',
-            zipCode: '33333',
-            city: 'Ville',
-        });
-
-        cy.intercept('POST', '**/orders').as('orderValidated');
-        cy.get(selector.cartInput.submit).click();
         
-        // Acceptation du backend
-        cy.wait('@orderValidated').then(({ response }) => {
-            expect(response.statusCode).to.eq(200);
-        });
+        prepareCheckout();
+        cy.env( ["cartInput_Valid"] ).then( ({cartInput_Valid}) => {
+            fillCheckout(cartInput_Valid);
 
-        // Vérification de la redirection
-        cy.location('hash').should('eq', '#/confirmation');
+            cy.intercept('POST', '**/orders').as('orderValidated');
+            cy.get(selector.cartInput.submit).click();
+            
+            // Acceptation du backend
+            cy.wait('@orderValidated').then(({ response }) => {
+                expect(response.statusCode).to.eq(200);
+            });
 
-        // Vérification du message de confirmation
-        cy.get('#confirmation .subtitle-confirm').should('be.visible').and('have.text', 'Votre commande est bien validée');
+            // Vérification de la redirection
+            cy.location('hash').should('eq', '#/confirmation');
+
+            // Vérification du message de confirmation
+            cy.get('#confirmation .subtitle-confirm').should('be.visible').and('have.text', 'Votre commande est bien validée');
+        })
     });
 });

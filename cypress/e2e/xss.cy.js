@@ -1,8 +1,9 @@
-import { loginApi, loginUI, selector } from '../support/tools'
+import { URL_API, loginApi, loginUI, selector } from '../support/tools'
+
+const do_screenshots = false;
 
 describe('Test XSS - EcoBlissBath', () => {
     
-    const do_screenshots = false;
 
     beforeEach(() => {
 
@@ -52,7 +53,7 @@ describe('Test XSS - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: injection,
@@ -74,7 +75,7 @@ describe('Test XSS - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: 3,
@@ -98,7 +99,7 @@ describe('Test XSS - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: 3,
@@ -110,7 +111,7 @@ describe('Test XSS - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'POST',
-                        url: 'http://localhost:8081/orders',
+                        url: `${URL_API}/orders`,
                         auth: { bearer: token },
                         body: {
                             "firstname": injection_img,

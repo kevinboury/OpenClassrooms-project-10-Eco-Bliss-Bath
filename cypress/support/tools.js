@@ -1,4 +1,4 @@
-export const API_URL = Cypress.expose('apiUrl');
+export const URL_API = Cypress.expose('urlAPI');
 
 export const selector = {
     nav: {
@@ -81,11 +81,10 @@ export function loginApi() {
         return cy.request(
             {
                 method: 'POST',
-                url: 'http://localhost:8081/login',
+                url: `${URL_API}/login`,
                 body: {
                     username: testEmail,
-                    password:
-                    testPassword
+                    password: testPassword
                 }
             }
         ).then((response) => {

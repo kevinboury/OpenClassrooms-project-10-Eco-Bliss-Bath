@@ -1,16 +1,10 @@
 import { 
     selector, 
-    openLogin, 
-    openRegister, 
-    assertVisibleError, 
-    fillRegistration, 
-    fillLogin, 
     loginUI } from '../support/tools';
 
-    //TODO
-
-const id_produit_a_tester = 5;
 const do_screenshots = false;
+
+const ID_PRODUIT_DISPO = products.productA_Dispo.id; //5
 
 describe('Smoke tests - EcoBlissBath', () => {
 
@@ -63,7 +57,7 @@ describe('Smoke tests - EcoBlissBath', () => {
 
     it("SMK-005 - Fiche produit - Affiche les informations du produit (titre, image, prix, description et quantité disponible)", () => {
 
-        cy.visit('/#/products/'+id_produit_a_tester);
+        cy.visit('/#/products/'+ID_PRODUIT_DISPO);
 
         cy.get(selector.product.image).should('be.visible');
         cy.get(selector.product.name).should('be.visible');
@@ -76,7 +70,7 @@ describe('Smoke tests - EcoBlissBath', () => {
 
     it("SMK-006 - Fiche produit - Affiche l’input de sélection de quantité et le bouton Ajouter au panier", () => {
 
-        cy.visit('/#/products/'+id_produit_a_tester);
+        cy.visit('/#/products/'+ID_PRODUIT_DISPO);
         cy.get(selector.product.quantity).should('be.visible');
         cy.get(selector.product.add).should('be.visible');
         
@@ -164,7 +158,7 @@ describe('Smoke tests - EcoBlissBath', () => {
         cy.intercept('GET', '**/products/5').as('productLoaded');
         cy.intercept('PUT', '**/orders/add').as('productAdded');
 
-        cy.visit('/#/products/'+id_produit_a_tester);
+        cy.visit('/#/products/'+ID_PRODUIT_DISPO);
         cy.wait('@productLoaded').then(({ response }) => {
             expect(response.statusCode).to.eq(200);
         });

@@ -1,16 +1,19 @@
 
-import { loginApi } from '../support/tools'
+import { URL_API, loginApi } from '../support/tools'
+
+const products = Cypress.expose('products');
+
+const ID_PRODUIT_DISPO = products.productA_Dispo.id; //5
+const ID_PRODUIT_EN_RUPTURE = products.productC_Rupture.id; //3
 
 describe('Tests API - EcoBlissBath', () => {
 
-    const ID_PRODUIT_DISPO = 5;
-    const ID_PRODUIT_EN_RUPTURE = 3;
 
     it("API-001 - Teste si l'API est en ligne", () => {
         cy.request(
             {
                 method: 'GET',
-                url: 'http://localhost:8081/api/health'
+                url: `${URL_API}/api/health`,
             }
         ).then((response) => {
             expect(response.status).to.eq(200);
@@ -26,7 +29,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'POST',
-                    url: 'http://localhost:8081/login',
+                    url: `${URL_API}/login`,
                     body: {
                         username: testEmail,
                         password: "mauvais_mdp"},
@@ -43,7 +46,7 @@ describe('Tests API - EcoBlissBath', () => {
         cy.request(
             {
                 method: 'POST',
-                url: 'http://localhost:8081/register',
+                url: `${URL_API}/register`,
                 body: {
                     email: email,
                     firstname: "Prénom",
@@ -67,7 +70,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'GET',
-                    url: 'http://localhost:8081/me',
+                    url: `${URL_API}/me`,
                     auth: { bearer: token }
                 }
             ).then((response) => {
@@ -77,7 +80,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it('API-005 - Récupère le catalogue des produits', () => {
-        cy.request('GET', 'http://localhost:8081/products').then((response) => {
+        cy.request('GET', `${URL_API}/products`).then((response) => {
 
             // Vérifie le code HTTP
             expect(response.status).to.eq(200);
@@ -91,7 +94,7 @@ describe('Tests API - EcoBlissBath', () => {
     });
 
     it('API-006 - Récupère 3 produits aléatoires', () => {
-        cy.request('GET', 'http://localhost:8081/products/random').then((response) => {
+        cy.request('GET', `${URL_API}/products/random`).then((response) => {
 
             expect(response.status).to.eq(200);
             expect(response.body).to.be.an('array');
@@ -102,7 +105,7 @@ describe('Tests API - EcoBlissBath', () => {
     it('API-007a - Récupère les informations d’un produit spécifique', () => {
         cy.request({
             method: 'GET',
-            url: `http://localhost:8081/products/${ID_PRODUIT_DISPO}`
+            url: `${URL_API}/products/${ID_PRODUIT_DISPO}`
         }).then((response) => {
             expect(response.status).to.eq(200);
 
@@ -115,7 +118,7 @@ describe('Tests API - EcoBlissBath', () => {
     it('API-007b - Tente de récupérer les informations d’un produit inexistant', () => {
         cy.request({
             method: 'GET',
-            url: 'http://localhost:8081/products/999999',
+            url: `${URL_API}/products/999999`,
             failOnStatusCode: false // Par défaut, cy.request() considère un code HTTP 4xx ou 5xx comme un échec de commande. L'option failOnStatusCode: false permet de vérifier volontairement ces réponses
         }).then((response) => {
             expect(response.status).to.eq(404);
@@ -128,7 +131,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_DISPO,
@@ -146,7 +149,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_EN_RUPTURE,
@@ -165,7 +168,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_DISPO,
@@ -178,7 +181,7 @@ describe('Tests API - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'GET',
-                        url: 'http://localhost:8081/orders',
+                        url: `${URL_API}/orders`,
                         auth: { bearer: token }
                     }
                 ).then((response) => {
@@ -194,7 +197,7 @@ describe('Tests API - EcoBlissBath', () => {
         cy.request(
             {
                 method: 'GET',
-                url: 'http://localhost:8081/orders',
+                url: `${URL_API}/orders`,
                 failOnStatusCode: false
             }
         ).then((response) => {
@@ -208,7 +211,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_DISPO,
@@ -225,7 +228,7 @@ describe('Tests API - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'PUT',
-                        url: `http://localhost:8081/orders/${id_ligne_du_panier_a_modifier}/change-quantity`,
+                        url: `${URL_API}/orders/${id_ligne_du_panier_a_modifier}/change-quantity`,
                         auth: { bearer: token },
                         body: {
                             "quantity": 1
@@ -243,7 +246,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/99999/change-quantity',
+                    url: `${URL_API}/orders/99999/change-quantity`,
                     auth: { bearer: token },
                     body: {
                         "quantity": 0
@@ -261,7 +264,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_DISPO,
@@ -278,7 +281,7 @@ describe('Tests API - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'DELETE',
-                        url: `http://localhost:8081/orders/${id_ligne_du_panier_a_supprimer}/delete`,
+                        url: `${URL_API}/orders/${id_ligne_du_panier_a_supprimer}/delete`,
                         auth: { bearer: token }
                     }
                 ).then((response) => {
@@ -295,7 +298,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_DISPO,
@@ -308,7 +311,7 @@ describe('Tests API - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'POST',
-                        url: 'http://localhost:8081/orders',
+                        url: `${URL_API}/orders`,
                         auth: { bearer: token },
                         body: {
                             "firstname": "Prénom",
@@ -332,7 +335,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'PUT',
-                    url: 'http://localhost:8081/orders/add',
+                    url: `${URL_API}/orders/add`,
                     auth: { bearer: token },
                     body: {
                         product: ID_PRODUIT_EN_RUPTURE,
@@ -345,7 +348,7 @@ describe('Tests API - EcoBlissBath', () => {
                 cy.request(
                     {
                         method: 'POST',
-                        url: 'http://localhost:8081/orders',
+                        url: `${URL_API}/orders`,
                         auth: { bearer: token },
                         body: {
                             "firstname": "Prénom",
@@ -365,7 +368,7 @@ describe('Tests API - EcoBlissBath', () => {
     it('API-013 - Récupère les avis postés sur le site', () => {
         cy.request({
             method: 'GET',
-            url: 'http://localhost:8081/reviews'
+            url: `${URL_API}/reviews`
         }).then((response) => {
             expect(response.status).to.eq(200);
         })
@@ -376,7 +379,7 @@ describe('Tests API - EcoBlissBath', () => {
             cy.request(
                 {
                     method: 'POST',
-                    url: 'http://localhost:8081/reviews',
+                    url: `${URL_API}/reviews`,
                     auth: { bearer: token },
                     body: {
                         title: `Cypress-API-${Date.now()}`,
