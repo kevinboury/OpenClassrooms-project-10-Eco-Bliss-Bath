@@ -43,16 +43,16 @@ npx cypress verify
 
 ## 3. Configuration
 
-Créer un fichier `cypress.env.json` à la racine du projet avec les identifiants d'un compte utilisateur de test existant :
+Le projet utilise un fichier `cypress.env.json` pour centraliser les paramètres d'environnement et les jeux de données des tests.
 
-```json
-{
-  "testEmail": "test@example.com",
-  "testPassword": "mot-de-passe"
-}
-```
+1. À la racine du projet, copier le fichier `cypress.env.example.json`.
+2. Renommer la copie en `cypress.env.json`.
+3. Renseigner les identifiants d'un compte utilisateur de test existant (`testEmail` et `testPassword`).
+4. Adapter si nécessaire les URL du frontend et de l'API, ainsi que les identifiants des produits et les autres données de test.
 
-Ce fichier contient des informations locales et est exclu du dépôt Git via `.gitignore`.
+Le fichier `cypress.env.json` est exclu du dépôt Git via `.gitignore`, afin de ne pas exposer les identifiants.
+Le fichier `cypress.env.example.json` est quant à lui versionné et sert de modèle de configuration pour reproduire l'environnement de test.
+
 
 ## 4. Exécution des tests
 
