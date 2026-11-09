@@ -2,7 +2,7 @@ import { URL_API, loginApi, loginUI, selector } from '../support/tools'
 
 const do_screenshots = false;
 
-const products = Cypress.expose('products');
+const products = Cypress.expose('products'); 
 const ID_PRODUIT_EN_RUPTURE = products.productC_Rupture.id;
 
 describe('Test XSS - EcoBlissBath', () => {

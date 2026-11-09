@@ -9,9 +9,6 @@ import {
     trySubmit, 
     addProductFromUI } from '../support/tools';
 
-// const PRODUCT_A = 5; 
-// const PRODUCT_B = 8;
-
 const products = Cypress.expose('products');
 const ID_PRODUIT_A = products.productA_Dispo.id;
 const ID_PRODUIT_B = products.productB_Dispo.id;
@@ -80,7 +77,7 @@ function seedCart() {
                 url: `${URL_API}/orders/add`,
                 auth: { bearer: token },
                 body: { 
-                    product: PRODUCT_A, 
+                    product: ID_PRODUIT_A, 
                     quantity: 1 
                 },
             }
@@ -133,12 +130,12 @@ describe('Scénario 2 — Panier', () => {
         // Éviter les variables utilisées hors de .then() : les commandes sont asynchrones.
 
 
-        addProductFromUI(PRODUCT_A, 2).then((productA) => {
+        addProductFromUI(ID_PRODUIT_A, 2).then((productA) => {
             openCart();
             assertLine(productA, 2);
             assertTotal(productA.priceCents * 2);
 
-            addProductFromUI(PRODUCT_B, 1).then((productB) => {
+            addProductFromUI(ID_PRODUIT_B, 1).then((productB) => {
                 openCart();
                 assertLine(productA, 2);
                 assertLine(productB, 1);
